@@ -9,11 +9,7 @@ const app = express();
 
 mongoose.connect("mongodb://127.0.0.1:27017/mestodb")
   .then(() => console.log("MongoDB in process"))
-  .catch((err) => console.error('Error connecting to MongoDB:', err))
-
-app.use(json);
-
-app.use(userRouter);
+  .catch((err) => console.error('Error connecting to MongoDB:', err));
 
 app.use((req, res, next) => {
   req.user = {
@@ -22,6 +18,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use(json);
+
+app.use(userRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
