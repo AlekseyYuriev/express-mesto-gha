@@ -51,7 +51,7 @@ module.exports.updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
-    return res.send(user);
+    return res.send(await user);
   } catch (error) {
     if(error.name === "ValidationError") {
       return res.status(ERROR_CODE_VALIDATION).send({ message: 'Ошибка валидации полей', ...error });
@@ -69,7 +69,7 @@ module.exports.updateAvatar = async (req, res) => {
   try {
     const { avatar } = req.body;
     const userAvatar = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
-    return res.send(userAvatar);
+    return res.send(await userAvatar);
   } catch (error) {
     if(error.name === "ValidationError") {
       return res.status(ERROR_CODE_VALIDATION).send({ message: 'Ошибка валидации полей', ...error });
