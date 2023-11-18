@@ -50,7 +50,7 @@ module.exports.createUser = async (req, res) => {
 module.exports.updateUser = async (req, res) => {
   try {
     const { name, about } = req.body;
-    const user = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
+    const user = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true });
     return res.send(await user);
   } catch (error) {
     if(error.name === "ValidationError") {
@@ -68,7 +68,7 @@ module.exports.updateUser = async (req, res) => {
 module.exports.updateAvatar = async (req, res) => {
   try {
     const { avatar } = req.body;
-    const userAvatar = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
+    const userAvatar = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true });
     return res.send(await userAvatar);
   } catch (error) {
     if(error.name === "ValidationError") {
