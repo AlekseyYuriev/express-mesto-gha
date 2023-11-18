@@ -3,7 +3,7 @@ const { getCards, createCard, deleteCard, likeCard, dislikeCard} = require('../c
 
 cardRouter.get('/cards', getCards);
 cardRouter.post('/cards', createCard);
-cardRouter.delete('cards/:cardId', deleteCard);
+cardRouter.delete('/cards/:cardId', deleteCard);
 cardRouter.put('/cards/:cardId/likes', likeCard);
 cardRouter.delete('/cards/:cardId/likes', dislikeCard);
 
