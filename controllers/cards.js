@@ -45,19 +45,16 @@ module.exports.likeCard = async (req, res) => {
     const likedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true, runValidators: true },
     )
+
     return res.send(likedCard);
   } catch (error) {
-    if ((error.message === "NotFound")) {
-      return res.status(ERROR_CODE_NOT_FOUND).send({ message: "Карточка с таким id не найдена" });
+    if ((error.name === "CastError" || error.name === "ValidationError")) {
+      return res.status(ERROR_CODE_VALIDATION).send({ message: "Карточка с таким id не найдена", ...error });
     }
 
-    if(error.name === "ValidationError") {
-      return res.status(ERROR_CODE_VALIDATION).send({ message: 'Ошибка валидации полей', ...error });
-    }
-
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Произошла ошибка', error });
   }
 };
 
@@ -66,7 +63,7 @@ module.exports.dislikeCard = async (req, res) => {
     const dislikedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true, runValidators: true },
     )
     return res.send(dislikedCard);
   } catch (error) {
