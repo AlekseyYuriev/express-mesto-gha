@@ -22,7 +22,7 @@ module.exports.getUserById = async (req, res) => {
     }
     res.send(user);
   } catch (error) {
-    if ((error.message === "NotFound")) {
+    if (error.message === "NotFound") {
       return res.status(ERROR_CODE_NOT_FOUND).send({ message: "Пользователь по id не найден" });
     }
 
@@ -57,7 +57,7 @@ module.exports.updateUser = async (req, res) => {
       return res.status(ERROR_CODE_VALIDATION).send({ message: 'Ошибка валидации полей', ...error });
     }
 
-    if ((error.message === "NotFound")) {
+    if (error.message === "NotFound") {
       return res.status(ERROR_CODE_NOT_FOUND).send({ message: "Пользователь по id не найден" });
     }
 
@@ -75,7 +75,7 @@ module.exports.updateAvatar = async (req, res) => {
       return res.status(ERROR_CODE_VALIDATION).send({ message: 'Ошибка валидации полей', ...error });
     }
 
-    if ((error.message === "NotFound")) {
+    if (error.message === "NotFound") {
       return res.status(ERROR_CODE_NOT_FOUND).send({ message: "Пользователь по id не найден" });
     }
 
