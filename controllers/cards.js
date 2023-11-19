@@ -10,7 +10,7 @@ module.exports.getCards = async (req, res) => {
     return res.send(cards);
   } catch (error) {
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -18,16 +18,16 @@ module.exports.createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
     const ownerId = req.user._id;
-    const newCard = await new Card({ name, link, owner: ownerId });
+    const newCard = new Card({ name, link, owner: ownerId });
     return res.send(await newCard.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей', ...error });
+      return res.send({ message: 'Ошибка валидации полей' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -45,11 +45,11 @@ module.exports.deleteCard = async (req, res) => {
   } catch (error) {
     if (error.name === 'CastError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Карточка с таким id не найдена', ...error });
+      return res.send({ message: 'Карточка с таким id не найдена' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -70,11 +70,11 @@ module.exports.likeCard = async (req, res) => {
   } catch (error) {
     if (error.name === 'CastError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Карточка с таким id не найдена', ...error });
+      return res.send({ message: 'Карточка с таким id не найдена' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -95,10 +95,10 @@ module.exports.dislikeCard = async (req, res) => {
   } catch (error) {
     if (error.name === 'CastError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Карточка с таким id не найдена', ...error });
+      return res.send({ message: 'Карточка с таким id не найдена' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };

@@ -10,7 +10,7 @@ module.exports.getUsers = async (req, res) => {
     return res.send(users);
   } catch (error) {
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -34,7 +34,7 @@ module.exports.getUserById = async (req, res) => {
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -46,11 +46,11 @@ module.exports.createUser = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей', ...error });
+      return res.send({ message: 'Ошибка валидации полей' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -66,16 +66,11 @@ module.exports.updateUser = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей', ...error });
-    }
-
-    if (error.message === 'NotFound') {
-      res.status(ERROR_CODE_NOT_FOUND);
-      return res.send({ message: 'Пользователь по id не найден' });
+      return res.send({ message: 'Ошибка валидации полей' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
 
@@ -91,15 +86,10 @@ module.exports.updateAvatar = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей', ...error });
-    }
-
-    if (error.message === 'NotFound') {
-      res.status(ERROR_CODE_NOT_FOUND);
-      return res.send({ message: 'Пользователь по id не найден' });
+      return res.send({ message: 'Ошибка валидации полей' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера', ...error });
+    return res.send({ message: 'Ошибка на стороне сервера' });
   }
 };
