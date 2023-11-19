@@ -9,7 +9,8 @@ module.exports.getUsers = async (req, res) => {
     const users = await User.find({});
     return res.send(users);
   } catch (error) {
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера', error: error.message });
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера', ...error });
   }
 };
 
@@ -23,14 +24,17 @@ module.exports.getUserById = async (req, res) => {
     return res.send(user);
   } catch (error) {
     if (error.message === 'NotFound') {
-      return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по id не найден' });
+      res.status(ERROR_CODE_NOT_FOUND);
+      return res.send({ message: 'Пользователь по id не найден' });
     }
 
     if (error.name === 'CastError') {
-      return res.status(ERROR_CODE_VALIDATION).send({ message: 'Передан не валидный id' });
+      res.status(ERROR_CODE_VALIDATION);
+      return res.send({ message: 'Передан не валидный id' });
     }
 
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера', ...error });
   }
 };
 
@@ -41,9 +45,12 @@ module.exports.createUser = async (req, res) => {
     return res.send(await newUser.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Ошибка валидации полей', ...error });
     }
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера', ...error });
   }
 };
 
@@ -58,14 +65,17 @@ module.exports.updateUser = async (req, res) => {
     return res.send(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Ошибка валидации полей', ...error });
     }
 
     if (error.message === 'NotFound') {
-      return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по id не найден' });
+      res.status(ERROR_CODE_NOT_FOUND);
+      return res.send({ message: 'Пользователь по id не найден' });
     }
 
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера', ...error });
   }
 };
 
@@ -80,13 +90,16 @@ module.exports.updateAvatar = async (req, res) => {
     return res.send(userAvatar);
   } catch (error) {
     if (error.name === 'ValidationError') {
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Ошибка валидации полей', ...error });
     }
 
     if (error.message === 'NotFound') {
-      return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по id не найден' });
+      res.status(ERROR_CODE_NOT_FOUND);
+      return res.send({ message: 'Пользователь по id не найден' });
     }
 
-    return res.status(ERROR_CODE_SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера', ...error });
   }
 };
