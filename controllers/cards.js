@@ -44,7 +44,7 @@ module.exports.deleteCard = async (req, res) => {
     return res.send({ message: 'Карточка удалена' });
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_NOT_FOUND);
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Карточка с таким id не найдена', ...error });
     }
 
@@ -69,7 +69,7 @@ module.exports.likeCard = async (req, res) => {
     return res.send(likedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_NOT_FOUND);
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Карточка с таким id не найдена', ...error });
     }
 
@@ -94,7 +94,7 @@ module.exports.dislikeCard = async (req, res) => {
     return res.send(dislikedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_NOT_FOUND);
+      res.status(ERROR_CODE_VALIDATION);
       return res.send({ message: 'Карточка с таким id не найдена', ...error });
     }
 
