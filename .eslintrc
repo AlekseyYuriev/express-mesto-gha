@@ -3,7 +3,12 @@
       "airbnb-base"
   ],
   "rules": {
-    "no-underscore-dangle": ["error", {"allow": ["_id"]}]
-  },
-	"typescript/explicit-function-return-type": ["error", { "allowVoid": true }]
+    "no-underscore-dangle": ["error", {"allow": ["_id"]}],
+    "consistent-return": [
+      0,
+      {
+        "treatUndefinedAsUnspecified": true
+      }
+    ]
+  }
 }
