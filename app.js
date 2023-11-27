@@ -14,14 +14,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('MongoDB in process'))
   .catch((err) => console.error('Error connecting to MongoDB:', err));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6558d7431e7891cd7e042d54',
-  };
-
-  next();
-});
-
 app.use(json);
 
 app.post('/signin', login);

@@ -8,6 +8,8 @@ const ERROR_CODE_VALIDATION = 400;
 const ERROR_CODE_NOT_FOUND = 404;
 const ERROR_CODE_SERVER_ERROR = 500;
 const ERROR_CODE_UNAUTHORIZED = 401;
+const MONGO_DUPLACATE_ERROR_CODE = 11000;
+const ERROR_CODE_CONFLICT_CODE = 409;
 
 module.exports.getUsers = async (req, res) => {
   try {
@@ -59,6 +61,11 @@ module.exports.createUser = async (req, res) => {
       return res.send({ message: 'Ошибка валидации полей' });
     }
 
+    if (error.code === MONGO_DUPLACATE_ERROR_CODE) {
+      res.status(ERROR_CODE_CONFLICT_CODE);
+      return res.send({ message: 'Такой пользователь уже существует' });
+    }
+
     res.status(ERROR_CODE_SERVER_ERROR);
     return res.send({ message: 'Ошибка на стороне сервера' });
   }
@@ -108,7 +115,10 @@ module.exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const userLogin = await User.findOne({ email });
+    const userLogin = await User.findOne({ email })
+      .select('+password')
+      .orFail(() => new Error('NotAutanticate'));
+
     if (!userLogin) {
       throw new Error('NotAutanticate');
     }
@@ -125,6 +135,32 @@ module.exports.login = async (req, res) => {
     if (error.message === 'NotAutanticate') {
       res.status(ERROR_CODE_UNAUTHORIZED);
       return res.send({ message: 'Неправильные email или password' });
+    }
+
+    res.status(ERROR_CODE_SERVER_ERROR);
+    return res.send({ message: 'Ошибка на стороне сервера' });
+  }
+};
+
+module.exports.getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new Error('NotFound');
+    }
+
+    return res.send(user);
+  } catch (error) {
+    if (error.message === 'NotFound') {
+      res.status(ERROR_CODE_NOT_FOUND);
+      return res.send({ message: 'Пользователь по id не найден' });
+    }
+
+    if (error.name === 'CastError') {
+      res.status(ERROR_CODE_VALIDATION);
+      return res.send({ message: 'Передан не валидный id' });
     }
 
     res.status(ERROR_CODE_SERVER_ERROR);
