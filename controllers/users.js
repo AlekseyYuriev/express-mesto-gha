@@ -42,10 +42,12 @@ module.exports.createUser = async (req, res, next) => {
       name, about, avatar, email, password,
     } = req.body;
     const hash = await bcrypt.hash(password, SOLT_ROUNDS);
-    const newUser = new User({
+    let newUser = await User.create({
       name, about, avatar, email, password: hash,
     });
-    return res.send(await newUser.save());
+    newUser = newUser.toObject();
+    delete newUser.password;
+    return res.send(newUser);
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Ошибка валидации полей'));
