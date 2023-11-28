@@ -103,7 +103,7 @@ module.exports.login = async (req, res, next) => {
   try {
     const userLogin = await User.findOne({ email })
       .select('+password')
-      .orFail(() => new Error('NotAutanticate'));
+      .orFail(() => new AuthorisationError('Неверный email или пароль'));
 
     if (!userLogin) {
       throw new AuthorisationError('Неверный email или пароль');

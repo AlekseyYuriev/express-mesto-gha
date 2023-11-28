@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
-const ConflictError = require('../errors/ConflictError');
+const BanError = require('../errors/BanError');
 
 module.exports.getCards = async (req, res, next) => {
   try {
@@ -40,7 +40,7 @@ module.exports.deleteCard = async (req, res, next) => {
     const userId = req.user._id;
 
     if (ownerId !== userId) {
-      throw new ConflictError('Нельзя удалять карточки других пользователей');
+      throw new BanError('Нельзя удалять карточки других пользователей');
     }
 
     await Card.findByIdAndDelete(cardId);
