@@ -1,51 +1,42 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const ValidationError = require('../errors/ValidationError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+const AuthorisationError = require('../errors/AuthorisationError');
 
 const SOLT_ROUNDS = 10;
 
-const ERROR_CODE_VALIDATION = 400;
-const ERROR_CODE_NOT_FOUND = 404;
-const ERROR_CODE_SERVER_ERROR = 500;
-const ERROR_CODE_UNAUTHORIZED = 401;
 const MONGO_DUPLACATE_ERROR_CODE = 11000;
-const ERROR_CODE_CONFLICT_CODE = 409;
 
-module.exports.getUsers = async (req, res) => {
+module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     return res.send(users);
   } catch (error) {
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+module.exports.getUserById = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
     if (!user) {
-      throw new Error('NotFound');
+      throw new NotFoundError('Пользователь по id не найден');
     }
     return res.send(user);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      res.status(ERROR_CODE_NOT_FOUND);
-      return res.send({ message: 'Пользователь по id не найден' });
+    if (error.name === 'ValidationError') {
+      next(new ValidationError('Ошибка валидации полей'));
     }
 
-    if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Передан не валидный id' });
-    }
-
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.createUser = async (req, res) => {
+module.exports.createUser = async (req, res, next) => {
   try {
     const {
       name, about, avatar, email, password,
@@ -57,21 +48,18 @@ module.exports.createUser = async (req, res) => {
     return res.send(await newUser.save());
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей' });
+      next(new ValidationError('Ошибка валидации полей'));
     }
 
     if (error.code === MONGO_DUPLACATE_ERROR_CODE) {
-      res.status(ERROR_CODE_CONFLICT_CODE);
-      return res.send({ message: 'Такой пользователь уже существует' });
+      next(new ConflictError('Такой пользователь уже существует'));
     }
 
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.updateUser = async (req, res) => {
+module.exports.updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const user = await User.findByIdAndUpdate(
@@ -82,16 +70,14 @@ module.exports.updateUser = async (req, res) => {
     return res.send(user);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей' });
+      next(new ValidationError('Ошибка валидации полей'));
     }
 
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.updateAvatar = async (req, res) => {
+module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const userAvatar = await User.findByIdAndUpdate(
@@ -102,16 +88,14 @@ module.exports.updateAvatar = async (req, res) => {
     return res.send(userAvatar);
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Ошибка валидации полей' });
+      next(new ValidationError('Ошибка валидации полей'));
     }
 
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.login = async (req, res) => {
+module.exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -120,50 +104,33 @@ module.exports.login = async (req, res) => {
       .orFail(() => new Error('NotAutanticate'));
 
     if (!userLogin) {
-      throw new Error('NotAutanticate');
+      throw new AuthorisationError('Неверный email или пароль');
     }
 
     const matched = await bcrypt.compare(String(password), userLogin.password);
     if (!matched) {
-      throw new Error('NotAutanticate');
+      throw new AuthorisationError('Неверный email или пароль');
     }
 
     const token = jwt.sign({ _id: userLogin._id }, 'secret-key', { expiresIn: '7d' });
 
     return res.send({ token });
   } catch (error) {
-    if (error.message === 'NotAutanticate') {
-      res.status(ERROR_CODE_UNAUTHORIZED);
-      return res.send({ message: 'Неправильные email или password' });
-    }
-
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
 
-module.exports.getCurrentUser = async (req, res) => {
+module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new Error('NotFound');
+      throw new NotFoundError('Пользователь по id не найден');
     }
 
     return res.send(user);
   } catch (error) {
-    if (error.message === 'NotFound') {
-      res.status(ERROR_CODE_NOT_FOUND);
-      return res.send({ message: 'Пользователь по id не найден' });
-    }
-
-    if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION);
-      return res.send({ message: 'Передан не валидный id' });
-    }
-
-    res.status(ERROR_CODE_SERVER_ERROR);
-    return res.send({ message: 'Ошибка на стороне сервера' });
+    return next(error);
   }
 };
