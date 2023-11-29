@@ -1,4 +1,5 @@
 const express = require('express');
+const dotenv = require('dotenv');
 const { celebrate, Joi, errors } = require('celebrate');
 const json = require('express').json();
 const mongoose = require('mongoose');
@@ -9,11 +10,13 @@ const auth = require('./middlewares/auth');
 const handleError = require('./middlewares/handleError');
 const NotFoundError = require('./errors/NotFoundError');
 
-const { PORT = 3000 } = process.env;
+dotenv.config();
 
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
+const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+
+mongoose.connect(MONGO_URL)
   .then(() => console.log('MongoDB in process'))
   .catch((err) => console.error('Error connecting to MongoDB:', err));
 

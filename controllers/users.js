@@ -6,8 +6,9 @@ const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 const AuthorisationError = require('../errors/AuthorisationError');
 
-const SOLT_ROUNDS = 10;
+const { JWT_SECRET = 'secret-key' } = process.env;
 
+const SOLT_ROUNDS = 10;
 const MONGO_DUPLACATE_ERROR_CODE = 11000;
 
 module.exports.getUsers = async (req, res, next) => {
@@ -28,7 +29,7 @@ module.exports.getUserById = async (req, res, next) => {
     }
     return res.send(user);
   } catch (error) {
-    if (error.name === 'ValidationError') {
+    if (error.name === 'CastError') {
       next(new ValidationError('Ошибка валидации полей'));
     }
 
@@ -114,7 +115,7 @@ module.exports.login = async (req, res, next) => {
       throw new AuthorisationError('Неверный email или пароль');
     }
 
-    const token = jwt.sign({ _id: userLogin._id }, 'secret-key', { expiresIn: '7d' });
+    const token = jwt.sign({ _id: userLogin._id }, JWT_SECRET, { expiresIn: '7d' });
 
     return res.send({ token });
   } catch (error) {
