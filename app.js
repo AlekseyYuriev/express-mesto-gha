@@ -9,6 +9,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const handleError = require('./middlewares/handleError');
 const NotFoundError = require('./errors/NotFoundError');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ mongoose.connect(MONGO_URL)
   .catch((err) => console.error('Error connecting to MongoDB:', err));
 
 app.use(json);
+
+app.use(requestLogger);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -43,6 +46,8 @@ app.use(auth);
 
 app.use(userRouter);
 app.use(cardRouter);
+
+app.use(errorLogger);
 
 app.all('*', (req, res, next) => {
   next(new NotFoundError('Неверный адрес запроса'));
